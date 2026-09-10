@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem.EnhancedTouch;
+using UnityEngine.UI;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
 
@@ -9,6 +9,13 @@ public class ARPlacementController : MonoBehaviour
     public ARRaycastManager raycastManager;
     public GameObject prefabToSpawn;
     public bool touchScreen;
+    [Space]
+    public Button deleteBTN;
+    public Button colorBTN;
+    [Space]
+    public float rotationSpeed = 10f;
+
+    private Renderer objectRenderer;
 
     private GameObject objectSpawned;
 
@@ -16,26 +23,61 @@ public class ARPlacementController : MonoBehaviour
 
     private void Update()
     {
+        VerifyObjectIsPlaced();
+
         if (touchScreen)
         {
-            if (Input.touchCount == 0) return;
-
-            var touch = Input.GetTouch(0);
-
-            if (touch.phase != TouchPhase.Began) return;
-
-            TryPlaceObject(touch.position);
+            HandleTouchInput();
         }
         else
         {
-            if (Input.GetMouseButtonDown(0))
-            {
-                TryPlaceObject(Input.mousePosition);
-            }
+            HandleMouseInput();
         }
     }
 
-    public void TryPlaceObject(Vector2 _screenPos)
+    private void HandleTouchInput()
+    {
+        if (Input.touchCount == 0) return;
+
+        var touch = Input.GetTouch(0);
+
+        if (touch.phase == TouchPhase.Began)
+        {
+            TryPlaceObject(touch.position);
+        }
+
+        if (touch.phase == TouchPhase.Moved && cubeIsActive)
+        {
+            RotateObject(touch.deltaPosition.x, touch.deltaPosition.y);
+        }
+    }
+
+    private void HandleMouseInput()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            TryPlaceObject(Input.mousePosition);
+        }
+
+        if (Input.GetMouseButton(0) && cubeIsActive)
+        {
+            RotateObject(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
+        }
+    }
+
+    private void RotateObject(float horizontal, float vertical)
+    {
+        if (objectSpawned == null)
+            return;
+
+        float rotX = vertical * rotationSpeed * Time.deltaTime;
+        float rotY = horizontal * rotationSpeed * Time.deltaTime;
+
+        objectSpawned.transform.Rotate(Vector3.up, -rotY, Space.World);
+        objectSpawned.transform.Rotate(Vector3.right, rotX, Space.Self);
+    }
+
+    private void TryPlaceObject(Vector2 _screenPos)
     {
         List<ARRaycastHit> hitResults = new List<ARRaycastHit>();
 
@@ -53,5 +95,34 @@ public class ARPlacementController : MonoBehaviour
 
         objectSpawned.transform.position = hitPose.position;
         objectSpawned.transform.rotation = hitPose.rotation;
+    }
+
+    private void VerifyObjectIsPlaced()
+    {
+        if (cubeIsActive)
+        {
+            deleteBTN.interactable = true;
+            colorBTN.interactable = true;
+        }
+        else
+        {
+            deleteBTN.interactable = false;
+            colorBTN.interactable = false;
+        }
+    }
+
+    public void DeleteObject()
+    {
+        cubeIsActive = false;
+        Destroy(objectSpawned);
+    }
+
+    public void ChangeObjectColor()
+    {
+        Transform visualsObject = objectSpawned.transform.GetChild(1);
+        objectRenderer = visualsObject.GetComponent<Renderer>();
+
+        Color randomColor = Random.ColorHSV();
+        objectRenderer.material.SetColor("_BaseColor", randomColor);
     }
 }

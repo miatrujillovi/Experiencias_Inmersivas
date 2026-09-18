@@ -27,3 +27,23 @@ MonoBehaviour:
     m_SpecifySize: 1
     m_Name: rubyTarget
     m_Texture: {fileID: 0}
+  - m_SerializedGuid:
+      m_GuidLow: 5000748627503863538
+      m_GuidHigh: 15746787047105089183
+    m_SerializedTextureGuid:
+      m_GuidLow: 17830919871084056805
+      m_GuidHigh: 5699907879896478361
+    m_Size: {x: 0, y: 0}
+    m_SpecifySize: 1
+    m_Name: muichiroTarget
+    m_Texture: {fileID: 0}
+  - m_SerializedGuid:
+      m_GuidLow: 4945016951767715196
+      m_GuidHigh: 14630608186387578295
+    m_SerializedTextureGuid:
+      m_GuidLow: 1536881177524962273
+      m_GuidHigh: 16454974461284704328
+    m_Size: {x: 0, y: 0}
+    m_SpecifySize: 1
+    m_Name: isoldeTarget
+    m_Texture: {fileID: 0}
